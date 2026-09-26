@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "linkedtrust_auth",
     "frame",
+    "ghost",
 ]
 
 MIDDLEWARE = [
@@ -51,6 +52,7 @@ TEMPLATES = [
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
+                "config.context.volkit",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
@@ -115,3 +117,12 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
 }
+
+# --- VolKit's own settings. Unset: that card is off. ---
+# The Ghost site (raisethevoices.org). Content key: published posts. Admin key
+# ("id:secret"): each person's own drafts, matched by their email.
+VOLKIT_GHOST_URL = env("VOLKIT_GHOST_URL", default="").rstrip("/")
+VOLKIT_GHOST_CONTENT_KEY = env("VOLKIT_GHOST_CONTENT_KEY", default="")
+VOLKIT_GHOST_ADMIN_KEY = env("VOLKIT_GHOST_ADMIN_KEY", default="")
+# The cases app. Its own sign-in; the card is a link until it signs in with LinkedTrust.
+VOLKIT_CASES_URL = env("VOLKIT_CASES_URL", default="").rstrip("/")

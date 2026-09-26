@@ -4,6 +4,7 @@ from django.urls import include, path
 from linkedtrust_auth.views import RedirectView
 
 from frame import api, auth, views
+from ghost import views as ghost_views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -12,6 +13,7 @@ urlpatterns = [
     path("auth/linkedtrust/redirect", RedirectView.as_view(), name="linkedtrust_start"),
     path("auth/linkedtrust/callback", auth.Callback.as_view(), name="linkedtrust_callback"),
     path("api/", include(api.urls)),
+    path("api/", include(ghost_views.urls)),
     path("", views.home, name="home"),
     path("o/<slug:org>/", views.dashboard, name="dashboard"),
     path("o/<slug:org>/<slug:dashboard>/", views.dashboard, name="dashboard_named"),

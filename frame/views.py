@@ -48,6 +48,9 @@ def dashboard(request, org, dashboard="home"):
     peers = {p.slug: p for p in Peer.objects.all()}
     cards, scripts = [], []
     for c in spec.get("cards", []):
+        # A card that needs a setting is off while the setting is unset.
+        if c.get("requires") and not getattr(settings, c["requires"], ""):
+            continue
         card = {"id": c["id"], "w": int(c.get("w", 4)), "title": c.get("title", "")}
         if "template" in c:
             card["template"] = c["template"]

@@ -1,7 +1,9 @@
 {
-  "title": "Home",
+  "title": "Volunteer Dashboard",
   "roles": [],
   "cards": [
-    {"id": "welcome", "w": 12, "title": "Welcome", "template": "frame/cards/welcome.html"}
+    {"id": "team-articles", "w": 6, "title": "From the team: a little help?", "peer": "volkit", "tag": "volkit-team-articles"},
+    {"id": "cases", "w": 6, "title": "My cases", "template": "frame/cards/cases.html", "requires": "VOLKIT_CASES_URL"},
+    {"id": "my-articles", "w": 6, "title": "My articles", "peer": "volkit", "tag": "volkit-my-articles"}
   ]
 }
