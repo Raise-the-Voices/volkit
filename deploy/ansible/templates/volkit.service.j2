@@ -1,0 +1,12 @@
+[Unit]
+Description=VolKit, the Raise the Voices volunteer dashboard
+After=network.target
+
+[Service]
+User={{ volkit_user }}
+WorkingDirectory={{ volkit_dir }}/app
+ExecStart={{ volkit_dir }}/venv/bin/gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker -w 2 -b 127.0.0.1:{{ volkit_port }}
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

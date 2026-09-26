@@ -1,5 +1,23 @@
 # VolKit
 
+The Raise the Voices volunteer dashboard: one page, what is next for me. A baobab frame.
+
+| Card | Reads | Off when |
+|---|---|---|
+| From the team: a little help? | newest 4 published posts, Ghost Content API | `VOLKIT_GHOST_URL` or `VOLKIT_GHOST_CONTENT_KEY` unset |
+| My articles | the person's own posts incl. drafts, Ghost Admin API, matched by email | `VOLKIT_GHOST_ADMIN_KEY` unset |
+| My cases | link to the cases app (its own sign-in for now) | `VOLKIT_CASES_URL` unset |
+
+Not built yet: To do next (Taiga, waits on baobab Open decision A), Upcoming events,
+Learning, My impact (no source of record chosen).
+
+Deploy: `deploy/ansible/` (see the playbook header and `example-vars.yml`).
+
+## Links
+
+`/`, `/o/<org>/`, `/o/<org>/<dashboard>/`, `/api/orgs/<org>/articles/team/`,
+`/api/orgs/<org>/articles/mine/`, `/static/embed/volkit.js`.
+
 A baobab frame: where people land. Sign-in, orgs and members, the nav, dashboards,
 and each person's arrangement of them. Made from
 [Cooperation-org/baobab](https://github.com/Cooperation-org/baobab); the rules are its

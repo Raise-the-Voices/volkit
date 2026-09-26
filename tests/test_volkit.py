@@ -70,3 +70,17 @@ def test_cases_card_only_when_cases_url_set(client, member):
         page = client.get("/o/rtv/").content
     assert b'href="https://cases.example/"' in page
     assert b"<volkit-team-articles" in page
+
+
+def test_seed_places_creates_once_and_never_overwrites(db, tmp_path):
+    import json
+    from django.core.management import call_command
+    from frame.models import NavPlace
+    seed = tmp_path / "seed.json"
+    seed.write_text(json.dumps({"orgs": [{"slug": "rtv", "name": "Raise the Voices"}],
+                                "nav": [{"label": "Tasks", "url": "https://tasks.example/"}]}))
+    call_command("seed_places", str(seed))
+    NavPlace.objects.filter(label="Tasks").update(url="https://changed.example/")
+    call_command("seed_places", str(seed))
+    assert list(NavPlace.objects.values_list("url", flat=True)) == ["https://changed.example/"]
+    assert Org.objects.count() == 1

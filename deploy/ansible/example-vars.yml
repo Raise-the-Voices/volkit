@@ -1,0 +1,20 @@
+# Copy, fill in, keep out of git (ansible-vault encrypt). Addresses below are
+# Raise the Voices' as of 2026-09-26.
+volkit_host: ""                 # not decided yet
+volkit_database_url: ""         # postgres://volkit:<pw>@10.0.0.100:5432/volkit
+volkit_secret_key: ""
+volkit_oidc_client_id: ""
+volkit_oidc_client_secret: ""
+volkit_ghost_url: https://raisethevoices.org
+volkit_ghost_content_key: ""
+volkit_ghost_admin_key: ""
+volkit_cases_url: https://cases.raisethevoices.org
+volkit_seed:
+  orgs: [{slug: rtv, name: Raise the Voices}]
+  peers:
+    - {slug: volkit, name: VolKit, app_url: "https://<volkit_host>", api_url: "https://<volkit_host>", embed_url: "https://<volkit_host>/static/embed/volkit.js"}
+  nav:
+    - {label: Handbook, url: "https://demos.linkedtrust.us/rtv-onboarding/"}
+    - {label: Tasks, url: "https://tasks.raisethevoices.org/"}
+    - {label: Cases, url: "https://cases.raisethevoices.org/"}
+    - {label: RTV site, url: "https://raisethevoices.org/"}

@@ -1,0 +1,74 @@
+# Deploys VolKit to one app VM. Run from a machine that can SSH to it:
+#   ansible-playbook -i <inventory> deploy/ansible/playbook.yml -e @<secrets.yml>
+# Before the first run: the Postgres database exists (cobox setup-new-app-vm.md,
+# create-app-db.sh), the OIDC client is registered at the issuer with redirect
+# https://<volkit_host>/auth/linkedtrust/callback, and the host routes volkit_host here.
+- hosts: volkit
+  become: true
+  vars:
+    volkit_repo: https://github.com/Raise-the-Voices/volkit.git
+    volkit_version: main
+    volkit_dir: /opt/volkit
+    volkit_user: volkit
+    volkit_port: 8010
+    # Required, no defaults: volkit_host, volkit_database_url, volkit_secret_key,
+    # volkit_oidc_client_id, volkit_oidc_client_secret.
+    # Optional, empty = that card is off:
+    volkit_ghost_url: ""
+    volkit_ghost_content_key: ""
+    volkit_ghost_admin_key: ""
+    volkit_cases_url: ""
+    volkit_embed_origins: ""
+    # First-deploy data (orgs, peers, nav). Existing rows are never changed.
+    volkit_seed: {orgs: [], peers: [], nav: []}
+  tasks:
+    - name: Packages
+      apt: {name: [git, python3-venv, nginx], state: present}
+
+    - name: Service user
+      user: {name: "{{ volkit_user }}", system: true, home: "{{ volkit_dir }}", shell: /usr/sbin/nologin}
+
+    - name: Code
+      git: {repo: "{{ volkit_repo }}", dest: "{{ volkit_dir }}/app", version: "{{ volkit_version }}"}
+      become_user: "{{ volkit_user }}"
+      notify: restart volkit
+
+    - name: Python environment
+      pip: {requirements: "{{ volkit_dir }}/app/requirements.txt", virtualenv: "{{ volkit_dir }}/venv", virtualenv_command: python3 -m venv}
+      become_user: "{{ volkit_user }}"
+      notify: restart volkit
+
+    - name: Settings
+      template: {src: env.j2, dest: "{{ volkit_dir }}/app/.env", owner: "{{ volkit_user }}", mode: "0600"}
+      notify: restart volkit
+
+    - name: Seed file
+      copy: {content: "{{ volkit_seed | to_nice_json }}", dest: "{{ volkit_dir }}/seed.json", owner: "{{ volkit_user }}", mode: "0600"}
+
+    - name: Migrate, collect static, seed
+      command: "{{ volkit_dir }}/venv/bin/python manage.py {{ item }}"
+      args: {chdir: "{{ volkit_dir }}/app"}
+      become_user: "{{ volkit_user }}"
+      loop: ["migrate --noinput", "collectstatic --noinput", "seed_places {{ volkit_dir }}/seed.json"]
+      changed_when: false
+
+    - name: systemd unit
+      template: {src: volkit.service.j2, dest: /etc/systemd/system/volkit.service}
+      notify: restart volkit
+
+    - name: nginx site
+      template: {src: nginx.conf.j2, dest: /etc/nginx/sites-available/volkit}
+      notify: reload nginx
+
+    - name: nginx site enabled
+      file: {src: /etc/nginx/sites-available/volkit, dest: /etc/nginx/sites-enabled/volkit, state: link}
+      notify: reload nginx
+
+    - name: Running
+      systemd: {name: volkit, enabled: true, state: started, daemon_reload: true}
+
+  handlers:
+    - name: restart volkit
+      systemd: {name: volkit, state: restarted, daemon_reload: true}
+    - name: reload nginx
+      systemd: {name: nginx, state: reloaded}
