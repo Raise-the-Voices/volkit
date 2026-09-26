@@ -1,0 +1,16 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}{{ site_name }}{% endblock %}</title>
+<link rel="stylesheet" href="{% static 'embed/theme.css' %}">
+<link rel="stylesheet" href="{% static 'frame.css' %}">
+</head>
+<body>
+<baobab-nav data-up="{{ request.scheme }}://{{ request.get_host }}"></baobab-nav>
+<main class="page">{% block content %}{% endblock %}</main>
+<script src="{% static 'embed/nav.js' %}" defer></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,14 @@
+{% extends "frame/base.html" %}
+{% block content %}
+{% if memberships %}
+  <h1>{{ site_name }}</h1>
+  <ul class="orgs">
+    {% for m in memberships %}<li><a href="{% url 'dashboard' org=m.org.slug %}">{{ m.org.name }}</a></li>{% endfor %}
+  </ul>
+{% elif user.is_authenticated %}
+  <h1>{{ site_name }}</h1>
+  <p>You are signed in and not in an org here yet.</p>
+{% else %}
+  <p><a class="btn" href="{% url 'login' %}">Sign in</a></p>
+{% endif %}
+{% endblock %}

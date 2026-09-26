@@ -1,0 +1,7 @@
+{
+  "title": "Home",
+  "roles": [],
+  "cards": [
+    {"id": "welcome", "w": 12, "title": "Welcome", "template": "frame/cards/welcome.html"}
+  ]
+}

@@ -1,0 +1,11 @@
+Django>=5.2,<6.2
+djangorestframework>=3.16
+django-cors-headers>=4.6
+django-environ>=0.12
+whitenoise>=6.8
+psycopg[binary]>=3.2
+uvicorn[standard]>=0.34
+gunicorn>=23
+django-linkedtrust-auth @ git+https://github.com/Cooperation-org/django-linkedtrust-auth.git@c415bc4cd4f2ffd3fd1377800f4ecab45d6d9341
+pytest>=8
+pytest-django>=4.9

@@ -1,0 +1,25 @@
+/* The frame's look, as CSS custom properties only (CONTRACT.md section 7).
+   Fronds load this after their own CSS (THEME_CSS), so these values win.
+   Starting values: GovKit's (govkit/static/govkit.css). */
+:root {
+  --bb-bg: #faf9f6;
+  --bb-surface: #fffefb;
+  --bb-ink: #26221c;
+  --bb-ink-2: #5d574d;
+  --bb-muted: #8a8378;
+  --bb-border: #e6e1d8;
+  --bb-border-strong: #cbc4b6;
+  --bb-neutral-soft: #edeae3;
+  --bb-accent: #007fa3;
+  --bb-accent-deep: #00607c;
+  --bb-on-accent: #ffffff;
+  --bb-cat-0: #007fa3; --bb-cat-1: #c94f58; --bb-cat-2: #5c8a27;
+  --bb-cat-3: #9d4270; --bb-cat-4: #a3780a; --bb-cat-5: #009b83;
+  --bb-ok: #4a7020; --bb-warn: #8a6508; --bb-bad: #b03a44;
+  --bb-font-body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --bb-font-head: Charter, "Bitstream Charter", "Iowan Old Style", Georgia, Cambria, serif;
+  --bb-font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --bb-radius: 6px;
+  --bb-radius-card: 10px;
+  color-scheme: light;
+}

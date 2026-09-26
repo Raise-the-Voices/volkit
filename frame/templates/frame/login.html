@@ -1,0 +1,11 @@
+{% extends "frame/base.html" %}
+{% block title %}Sign in · {{ site_name }}{% endblock %}
+{% block content %}
+<h1>Sign in to {{ site_name }}</h1>
+{% if error %}<p class="note">That sign-in did not finish. Try again.</p>{% endif %}
+<p class="signin">
+  {% for p in providers %}
+    {% if p == "linkedtrust" %}<a class="btn" href="{% url 'linkedtrust_start' %}">Continue with LinkedTrust</a>{% endif %}
+  {% endfor %}
+</p>
+{% endblock %}
