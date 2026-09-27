@@ -1,7 +1,7 @@
 /* The frame's look, as CSS custom properties only (CONTRACT.md section 7).
    Fronds load this after their own CSS (THEME_CSS), so these values win.
    Starting values: GovKit's (govkit/static/govkit.css); accent and fonts are
-   Raise the Voices' (teal #25646a, PT Sans / PT Serif, from the Marturia app.css via demos.linkedtrust.us/rtv-help/help.css). */
+   Raise the Voices' (teal #25646a, PT Sans / PT Serif, from the Marturia app.css). */
 :root {
   --bb-bg: #faf9f6;
   --bb-surface: #fffefb;

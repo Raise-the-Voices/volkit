@@ -14,7 +14,7 @@ volkit_seed:
   peers:
     - {slug: volkit, name: VolKit, app_url: "https://<volkit_host>", api_url: "https://<volkit_host>", embed_url: "https://<volkit_host>/static/embed/volkit.js"}
   nav:
-    - {label: Handbook, url: "https://demos.linkedtrust.us/rtv-onboarding/"}
+    - {label: Handbook, url: "https://help.raisethevoices.org/onboarding/"}
     - {label: Tasks, url: "https://tasks.raisethevoices.org/"}
     - {label: Cases, url: "https://cases.raisethevoices.org/"}
     - {label: RTV site, url: "https://raisethevoices.org/"}
