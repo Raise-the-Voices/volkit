@@ -2,9 +2,9 @@
 // DOM. Style them from the host page by tag name. Each hides itself when it has
 // nothing to show.
 //
-//   <volkit-team-articles data-up="<VolKit>" data-org="<org>">
+//   <volkit-team-articles data-up="<VolKit>">
 //     The newest published articles (max 4), each a link to read and share.
-//   <volkit-my-articles data-up="<VolKit>" data-org="<org>">
+//   <volkit-my-articles data-up="<VolKit>">
 //     The signed-in person's own articles, drafts included, each a link to edit.
 
 (function () {
@@ -17,7 +17,7 @@
     return new Promise(function (resolve, reject) {
       var script = document.createElement('script');
       script.src = KIT;
-      script.onload = function () { resolve(window.baobabKits[KIT](SLUG)); };
+      script.onload = function () { resolve(window.embedKits[KIT](SLUG)); };
       script.onerror = reject;
       document.head.appendChild(script);
     });
@@ -33,9 +33,7 @@
     customElements.define(tag, class extends HTMLElement {
       connectedCallback() {
         var host = this;
-        var org = host.dataset.org;
-        if (!org) return kit.hide(host);
-        kit.getJSON(host, '/api/orgs/' + encodeURIComponent(org) + path).then(function (items) {
+        kit.getJSON(host, '/api' + path).then(function (items) {
           if (!Array.isArray(items)) return kit.hide(host);
           var list = document.createElement('ul');
           items.forEach(function (item) {

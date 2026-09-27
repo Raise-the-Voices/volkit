@@ -1,4 +1,4 @@
-"""Reads the Ghost site (a vine: Ghost stays the record, nothing is copied).
+"""Reads the Ghost site (an existing system: Ghost stays the record, nothing is copied).
 
 Content API for published posts, Admin API for a person's own drafts. Both are
 off when their key is unset. Keys and URL are VOLKIT_GHOST_* settings."""

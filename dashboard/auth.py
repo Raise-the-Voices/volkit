@@ -13,11 +13,12 @@ from linkedtrust_auth import views as lt
 
 from .models import Identity
 
-NEXT_KEY = "baobab_next"
+NEXT_KEY = "signin_next"
+EMAIL_VERIFIED = "email_verified"
 
 
 def safe_next(request, raw):
-    """A path on this host, or a URL on an origin in EMBED_ORIGINS (a frond that
+    """A path on this host, or a URL on an origin in EMBED_ORIGINS (a page that
     sent the person here to sign in). Anything else goes home."""
     if not raw:
         return "/"
@@ -38,7 +39,7 @@ def login_page(request):
     error = request.GET.get("error", "")
     if settings.AUTH_PROVIDERS == ["linkedtrust"] and not error:
         return redirect("linkedtrust_start")
-    return render(request, "frame/login.html", {
+    return render(request, "dashboard/login.html", {
         "providers": settings.AUTH_PROVIDERS,
         "error": error,
     })
@@ -100,10 +101,13 @@ class Callback(lt.CallbackView):
 
     def get_or_create_user(self, userinfo):
         self._person = person_for(userinfo)
+        self._email_verified = userinfo.get("email_verified") is True
         return self._person, {}
 
     def _success(self, request, tokens):
         login(request, self._person, backend="django.contrib.auth.backends.ModelBackend")
+        # VolKit: "My articles" matches Ghost authors by email, so only a verified one.
+        request.session[EMAIL_VERIFIED] = self._email_verified
         return redirect(safe_next(request, request.session.pop(NEXT_KEY, "/")))
 
     def _fail(self, request, error_code):

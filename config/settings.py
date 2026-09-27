@@ -1,5 +1,5 @@
-"""Settings for VolKit, a baobab frame. Every value comes from the environment;
-.env.example lists them. Names shared across baobab pieces are in CONTRACT.md section 10."""
+"""Settings for VolKit, a dashboard app. Every value comes from the environment;
+.env.example lists them. Names shared across pieces are in CONTRACT.md section 10."""
 
 import os
 from pathlib import Path
@@ -8,7 +8,7 @@ import environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
-if not os.environ.get("BAOBAB_TESTS"):
+if not os.environ.get("RUNNING_TESTS"):
     environ.Env.read_env(BASE_DIR / ".env")  # tests never read a developer's .env
 
 SITE_NAME = env("SITE_NAME", default="VolKit")
@@ -27,7 +27,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework",
     "linkedtrust_auth",
-    "frame",
+    "dashboard",
     "ghost",
 ]
 
@@ -41,11 +41,11 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "frame.security.ScriptPolicyMiddleware",
+    "dashboard.security.ScriptPolicyMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
-ASGI_APPLICATION = "config.asgi.application"
+WSGI_APPLICATION = "config.wsgi.application"
 
 TEMPLATES = [
     {
@@ -54,11 +54,11 @@ TEMPLATES = [
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
-                "config.context.volkit",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "frame.views.site",
+                "dashboard.views.site",
+                "config.context.volkit",
             ],
         },
     },
@@ -98,24 +98,17 @@ LINKEDTRUST_CLIENT_SECRET = env("OIDC_CLIENT_SECRET")
 LINKEDTRUST_SCOPES = "openid email profile trust"
 LOGIN_URL = "/auth/login/"
 
-# --- Pieces that embed this frame's cards or read its API (CONTRACT.md section 5) ---
+# --- Pieces that embed this dashboard app's cards or read its API (CONTRACT.md section 5) ---
 EMBED_ORIGINS = env.list("EMBED_ORIGINS", default=[])
 CORS_ALLOWED_ORIGINS = EMBED_ORIGINS
 CORS_ALLOW_CREDENTIALS = True
 CORS_URLS_REGEX = r"^/api/"
 from corsheaders.defaults import default_headers  # noqa: E402
 
-CORS_ALLOW_HEADERS = [*default_headers, "x-baobab"]
-
-# Roots ask this frame who belongs to which org (CONTRACT.md, Open decision C).
-# Empty disables that endpoint.
-S2S_TOKEN = env("S2S_TOKEN", default="")
-
-# --- Live updates (CONTRACT.md section 3). Needs Postgres and an ASGI server. ---
-LIVE = env.bool("LIVE", default=True) and DATABASES["default"]["ENGINE"].endswith("postgresql")
+CORS_ALLOW_HEADERS = [*default_headers, "x-embed"]
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": ["frame.security.EmbedSessionAuthentication"],
+    "DEFAULT_AUTHENTICATION_CLASSES": ["dashboard.security.EmbedSessionAuthentication"],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
 }

@@ -2,14 +2,15 @@
 
 import os
 
-os.environ["BAOBAB_TESTS"] = "1"
+os.environ["RUNNING_TESTS"] = "1"
 
 for key, value in {
     "SECRET_KEY": "test",
     "DATABASE_URL": "sqlite://:memory:",
     "OIDC_CLIENT_ID": "test",
     "OIDC_CLIENT_SECRET": "test",
-    "ALLOWED_HOSTS": "testserver,frame.example",
+    "EMBED_ORIGINS": "https://cards.example",
+    "ALLOWED_HOSTS": "testserver,dashboard.example",
 }.items():
     os.environ.setdefault(key, value)
 

@@ -1,18 +1,18 @@
-{% extends "frame/base.html" %}
-{% load static frame_tags %}
-{% block title %}{{ title }} · {{ org.name }}{% endblock %}
+{% extends "dashboard/base.html" %}
+{% load static dashboard_tags %}
+{% block title %}{{ title }} · {{ site_name }}{% endblock %}
 {% block content %}
 <h1 class="dash-title">{{ title }}</h1>
-<baobab-grid data-up="{{ request.scheme }}://{{ request.get_host }}" data-dashboard="{{ dashboard }}">
+<dashboard-grid data-up="{{ request.scheme }}://{{ request.get_host }}" data-dashboard="{{ dashboard }}">
   {% for c in cards %}
   <section class="card" data-card="{{ c.id }}" data-w="{{ c.w }}" data-autohide>
     <div class="card-header">
       <span class="card-title">{{ c.title }}</span>
     </div>
-    {% if c.template %}{% include c.template %}{% else %}{% element_card c org %}{% endif %}
+    {% if c.template %}{% include c.template %}{% else %}{% element_card c %}{% endif %}
   </section>
   {% endfor %}
-</baobab-grid>
+</dashboard-grid>
 {% endblock %}
 {% block scripts %}
 <script src="{% static 'embed/grid.js' %}" defer></script>

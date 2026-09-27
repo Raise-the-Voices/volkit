@@ -21,8 +21,8 @@
     volkit_ghost_admin_key: ""
     volkit_cases_url: ""
     volkit_embed_origins: ""
-    # First-deploy data (orgs, peers, nav). Existing rows are never changed.
-    volkit_seed: {orgs: [], peers: [], nav: []}
+    # First-deploy data (apps, nav). Existing rows are never changed.
+    volkit_seed: {apps: [], nav: []}
   tasks:
     - name: Packages
       apt: {name: [git, python3-venv, nginx], state: present}

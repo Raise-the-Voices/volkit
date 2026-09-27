@@ -5,7 +5,7 @@ After=network.target
 [Service]
 User={{ volkit_user }}
 WorkingDirectory={{ volkit_dir }}/app
-ExecStart={{ volkit_dir }}/venv/bin/gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker -w 2 -b 127.0.0.1:{{ volkit_port }}
+ExecStart={{ volkit_dir }}/venv/bin/gunicorn config.wsgi:application -w 2 -b 127.0.0.1:{{ volkit_port }}
 Restart=on-failure
 
 [Install]

@@ -10,9 +10,6 @@ volkit_ghost_content_key: ""
 volkit_ghost_admin_key: ""
 volkit_cases_url: https://cases.raisethevoices.org
 volkit_seed:
-  orgs: [{slug: rtv, name: Raise the Voices}]
-  peers:
-    - {slug: volkit, name: VolKit, app_url: "https://<volkit_host>", api_url: "https://<volkit_host>", embed_url: "https://<volkit_host>/static/embed/volkit.js"}
   nav:
     - {label: Handbook, url: "https://help.raisethevoices.org/onboarding/"}
     - {label: Tasks, url: "https://tasks.raisethevoices.org/"}

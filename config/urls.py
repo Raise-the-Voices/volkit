@@ -3,7 +3,7 @@ from django.urls import include, path
 
 from linkedtrust_auth.views import RedirectView
 
-from frame import api, auth, views
+from dashboard import api, auth, views
 from ghost import views as ghost_views
 
 urlpatterns = [
@@ -15,6 +15,5 @@ urlpatterns = [
     path("api/", include(api.urls)),
     path("api/", include(ghost_views.urls)),
     path("", views.home, name="home"),
-    path("o/<slug:org>/", views.dashboard, name="dashboard"),
-    path("o/<slug:org>/<slug:dashboard>/", views.dashboard, name="dashboard_named"),
+    path("d/<slug:dashboard>/", views.dashboard, name="dashboard"),
 ]

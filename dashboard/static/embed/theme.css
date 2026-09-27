@@ -1,0 +1,25 @@
+/* The dashboard app's look, as CSS custom properties only (CONTRACT.md section 7).
+   Starting values: GovKit's (govkit/static/govkit.css); accent and fonts are
+   Raise the Voices' (teal #25646a, PT Sans / PT Serif, from the Marturia app.css). */
+:root {
+  --theme-bg: #faf9f6;
+  --theme-surface: #fffefb;
+  --theme-ink: #26221c;
+  --theme-ink-2: #5d574d;
+  --theme-muted: #8a8378;
+  --theme-border: #e6e1d8;
+  --theme-border-strong: #cbc4b6;
+  --theme-neutral-soft: #edeae3;
+  --theme-accent: #25646a;
+  --theme-accent-deep: #1c4d52;
+  --theme-on-accent: #ffffff;
+  --theme-cat-0: #007fa3; --theme-cat-1: #c94f58; --theme-cat-2: #5c8a27;
+  --theme-cat-3: #9d4270; --theme-cat-4: #a3780a; --theme-cat-5: #009b83;
+  --theme-ok: #4a7020; --theme-warn: #8a6508; --theme-bad: #b03a44;
+  --theme-font-body: "PT Sans", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --theme-font-head: "PT Serif", Charter, "Bitstream Charter", "Iowan Old Style", Georgia, Cambria, serif;
+  --theme-font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --theme-radius: 6px;
+  --theme-radius-card: 10px;
+  color-scheme: light;
+}

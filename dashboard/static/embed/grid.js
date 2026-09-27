@@ -1,17 +1,17 @@
-// <baobab-grid> — a dashboard a person can arrange, and that stays arranged.
+// <dashboard-grid> — a dashboard a person can arrange, and that stays arranged.
 //
 // The page lists its cards as children, in default order, each with an id and a
 // width out of 12:
 //
-//   <baobab-grid data-up="https://frame.example" data-dashboard="home">
+//   <dashboard-grid data-up="https://dashboard.example" data-dashboard="home">
 //     <section class="card" data-card="pie" data-w="5"> <h2>The pie</h2> ... </section>
 //     ...
-//   </baobab-grid>
-//   <script src="https://frame.example/static/embed/grid.js" defer></script>
+//   </dashboard-grid>
+//   <script src="https://dashboard.example/static/embed/grid.js" defer></script>
 //
 // What a person can do: drag a card by its heading, drag its side to make it wider
 // or narrower, hide it (x), bring it back (Add a card), see one card at a time, and
-// reset to the page's default (with undo). Their arrangement is saved in the frame
+// reset to the page's default (with undo). Their arrangement is saved in the dashboard app
 // (GET/PUT/DELETE /api/me/layouts/<dashboard>/) and only they change it.
 //
 // Cards come and go on their own: a card the page removes (not for this person) or
@@ -21,12 +21,12 @@
 // Heights follow content. On a narrow screen the grid is one column in the saved
 // order, and nothing is dragged or saved there.
 //
-// Built on GridStack.js (MIT, vendor/). Same conventions as every baobab card: vanilla JS,
+// Built on GridStack.js (MIT, vendor/). Same conventions as every card: vanilla JS,
 // no shadow DOM, textContent-only writes, quiet failure.
 
 (function () {
   'use strict';
-  if (window.customElements && customElements.get('baobab-grid')) return;
+  if (window.customElements && customElements.get('dashboard-grid')) return;
 
   var HERE = (document.currentScript && document.currentScript.src) || '';
   var BASE = HERE.slice(0, HERE.lastIndexOf('/') + 1);
@@ -52,48 +52,48 @@
   }
 
   function ensureStyles() {
-    if (document.getElementById('baobab-grid-styles')) return;
+    if (document.getElementById('dashboard-grid-styles')) return;
     var s = document.createElement('style');
-    s.id = 'baobab-grid-styles';
+    s.id = 'dashboard-grid-styles';
     s.textContent = [
-      'baobab-grid { display: block; }',
-      'baobab-grid .bg-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 4px 14px; font-size: 12.5px; padding: 0 8px 6px; min-height: 22px; }',
-      'baobab-grid .bg-tools button { font: inherit; color: var(--bb-muted, #736b5c); background: none; border: 0; padding: 2px 0; cursor: pointer; }',
-      'baobab-grid .bg-tools button:hover { color: var(--bb-ink, #26221c); text-decoration: underline; }',
-      'baobab-grid .bg-tools button[aria-pressed="true"] { color: var(--bb-ink, #26221c); font-weight: 600; }',
-      'baobab-grid .bg-tools .bg-note { color: var(--bb-muted, #736b5c); }',
-      'baobab-grid .bg-tools a { color: var(--bb-muted, #736b5c); }',
-      'baobab-grid .bg-tools a:hover { color: var(--bb-ink, #26221c); }',
-      'baobab-grid .bg-add { position: relative; }',
-      'baobab-grid .bg-add ul { position: absolute; right: 0; top: 100%; z-index: 20; list-style: none; margin: 4px 0 0; padding: 4px 0; min-width: 12rem; background: var(--bb-surface, #fff); border: 1px solid var(--bb-border, #e6e1d8); border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.08); }',
-      'baobab-grid .bg-add ul[hidden] { display: none; }',
-      'baobab-grid .bg-add li button { display: block; width: 100%; text-align: left; padding: 6px 12px; color: var(--bb-ink, #26221c); }',
-      'baobab-grid .bg-tabs { display: flex; flex-wrap: wrap; gap: 4px; padding: 0 8px 10px; }',
-      'baobab-grid .bg-tabs[hidden] { display: none; }',
-      'baobab-grid .bg-tabs button { font: inherit; font-size: 13px; color: var(--bb-ink-2, #5d574d); background: none; border: 1px solid var(--bb-border, #e6e1d8); border-radius: 999px; padding: 4px 12px; cursor: pointer; }',
-      'baobab-grid .bg-tabs button[aria-selected="true"] { color: var(--bb-ink, #26221c); border-color: var(--bb-ink-2, #5d574d); font-weight: 600; }',
+      'dashboard-grid { display: block; }',
+      'dashboard-grid .bg-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 4px 14px; font-size: 12.5px; padding: 0 8px 6px; min-height: 22px; }',
+      'dashboard-grid .bg-tools button { font: inherit; color: var(--theme-muted, #736b5c); background: none; border: 0; padding: 2px 0; cursor: pointer; }',
+      'dashboard-grid .bg-tools button:hover { color: var(--theme-ink, #26221c); text-decoration: underline; }',
+      'dashboard-grid .bg-tools button[aria-pressed="true"] { color: var(--theme-ink, #26221c); font-weight: 600; }',
+      'dashboard-grid .bg-tools .bg-note { color: var(--theme-muted, #736b5c); }',
+      'dashboard-grid .bg-tools a { color: var(--theme-muted, #736b5c); }',
+      'dashboard-grid .bg-tools a:hover { color: var(--theme-ink, #26221c); }',
+      'dashboard-grid .bg-add { position: relative; }',
+      'dashboard-grid .bg-add ul { position: absolute; right: 0; top: 100%; z-index: 20; list-style: none; margin: 4px 0 0; padding: 4px 0; min-width: 12rem; background: var(--theme-surface, #fff); border: 1px solid var(--theme-border, #e6e1d8); border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.08); }',
+      'dashboard-grid .bg-add ul[hidden] { display: none; }',
+      'dashboard-grid .bg-add li button { display: block; width: 100%; text-align: left; padding: 6px 12px; color: var(--theme-ink, #26221c); }',
+      'dashboard-grid .bg-tabs { display: flex; flex-wrap: wrap; gap: 4px; padding: 0 8px 10px; }',
+      'dashboard-grid .bg-tabs[hidden] { display: none; }',
+      'dashboard-grid .bg-tabs button { font: inherit; font-size: 13px; color: var(--theme-ink-2, #5d574d); background: none; border: 1px solid var(--theme-border, #e6e1d8); border-radius: 999px; padding: 4px 12px; cursor: pointer; }',
+      'dashboard-grid .bg-tabs button[aria-selected="true"] { color: var(--theme-ink, #26221c); border-color: var(--theme-ink-2, #5d574d); font-weight: 600; }',
       // the heading is the drag handle; the hide control sits in it
-      'baobab-grid .grid-stack-item .bg-handle { cursor: grab; }',
-      'baobab-grid.bg-static .grid-stack-item .bg-handle { cursor: auto; }',
-      'baobab-grid .grid-stack-item.ui-draggable-dragging .bg-handle { cursor: grabbing; }',
-      'baobab-grid .bg-hide { font: inherit; font-size: 15px; line-height: 1; color: var(--bb-muted, #736b5c); background: none; border: 0; padding: 0 2px; margin-left: 8px; cursor: pointer; opacity: 0; }',
-      'baobab-grid .grid-stack-item:hover .bg-hide, baobab-grid .bg-hide:focus-visible { opacity: 1; }',
-      'baobab-grid.bg-static .bg-hide { display: none; }',
-      'baobab-grid .bg-out { display: none; }',
-      'baobab-grid .grid-stack-item-content { overflow: visible !important; }',
-      'baobab-grid .grid-stack-item-content > * { margin: 0; }',
-      'baobab-grid .grid-stack-placeholder > .placeholder-content { border: 1px dashed var(--bb-border, #cbc4b6); border-radius: 10px; background: transparent; }',
+      'dashboard-grid .grid-stack-item .bg-handle { cursor: grab; }',
+      'dashboard-grid.bg-static .grid-stack-item .bg-handle { cursor: auto; }',
+      'dashboard-grid .grid-stack-item.ui-draggable-dragging .bg-handle { cursor: grabbing; }',
+      'dashboard-grid .bg-hide { font: inherit; font-size: 15px; line-height: 1; color: var(--theme-muted, #736b5c); background: none; border: 0; padding: 0 2px; margin-left: 8px; cursor: pointer; opacity: 0; }',
+      'dashboard-grid .grid-stack-item:hover .bg-hide, dashboard-grid .bg-hide:focus-visible { opacity: 1; }',
+      'dashboard-grid.bg-static .bg-hide { display: none; }',
+      'dashboard-grid .bg-out { display: none; }',
+      'dashboard-grid .grid-stack-item-content { overflow: visible !important; }',
+      'dashboard-grid .grid-stack-item-content > * { margin: 0; }',
+      'dashboard-grid .grid-stack-placeholder > .placeholder-content { border: 1px dashed var(--theme-border, #cbc4b6); border-radius: 10px; background: transparent; }',
       // narrow screens: one column in normal flow, ordered by syncStatic()
-      'baobab-grid.bg-narrow .grid-stack { display: flex; flex-direction: column; gap: 12px; height: auto !important; min-height: 0 !important; }',
-      'baobab-grid.bg-narrow .grid-stack-item { position: relative !important; top: auto !important; left: auto !important; width: 100% !important; height: auto !important; transform: none !important; }',
-      'baobab-grid.bg-narrow .grid-stack-item > .grid-stack-item-content { position: relative !important; inset: auto !important; }',
-      'baobab-grid.bg-narrow .ui-resizable-handle { display: none !important; }',
+      'dashboard-grid.bg-narrow .grid-stack { display: flex; flex-direction: column; gap: 12px; height: auto !important; min-height: 0 !important; }',
+      'dashboard-grid.bg-narrow .grid-stack-item { position: relative !important; top: auto !important; left: auto !important; width: 100% !important; height: auto !important; transform: none !important; }',
+      'dashboard-grid.bg-narrow .grid-stack-item > .grid-stack-item-content { position: relative !important; inset: auto !important; }',
+      'dashboard-grid.bg-narrow .ui-resizable-handle { display: none !important; }',
       // one at a time: the chosen card, full width, in normal flow
-      'baobab-grid.bg-one .grid-stack { height: auto !important; min-height: 0 !important; }',
-      'baobab-grid.bg-one .grid-stack-item { display: none; }',
-      'baobab-grid.bg-one .grid-stack-item.bg-current { display: block; position: relative !important; top: auto !important; left: auto !important; width: 100% !important; height: auto !important; transform: none !important; }',
-      'baobab-grid.bg-one .grid-stack-item.bg-current > .grid-stack-item-content { position: relative !important; inset: auto !important; }',
-      'baobab-grid.bg-one .ui-resizable-handle { display: none !important; }',
+      'dashboard-grid.bg-one .grid-stack { height: auto !important; min-height: 0 !important; }',
+      'dashboard-grid.bg-one .grid-stack-item { display: none; }',
+      'dashboard-grid.bg-one .grid-stack-item.bg-current { display: block; position: relative !important; top: auto !important; left: auto !important; width: 100% !important; height: auto !important; transform: none !important; }',
+      'dashboard-grid.bg-one .grid-stack-item.bg-current > .grid-stack-item-content { position: relative !important; inset: auto !important; }',
+      'dashboard-grid.bg-one .ui-resizable-handle { display: none !important; }',
     ].join('\n');
     document.head.appendChild(s);
   }
@@ -117,7 +117,7 @@
     return out;
   }
 
-  class BaobabGrid extends HTMLElement {
+  class DashboardGrid extends HTMLElement {
     connectedCallback() {
       if (this._started) return;
       this._started = true;
@@ -165,7 +165,8 @@
           self.canSave = true;
           self.saved = {
             items: l.items && typeof l.items === 'object' && !Array.isArray(l.items) ? l.items : {},
-            hidden: Array.isArray(l.hidden) ? l.hidden.filter(function (id) { return self.byId[id]; }) : [],
+            // Kept even for cards not on this page today, so the choice holds when they return.
+            hidden: Array.isArray(l.hidden) ? l.hidden.filter(function (id) { return typeof id === 'string'; }) : [],
             view: l.view === 'one' ? 'one' : 'grid',
             current: typeof l.current === 'string' ? l.current : '',
           };
@@ -276,7 +277,7 @@
         self.watch(c);
       });
       this.relayout();
-      // Signed out, or the frame unreachable: an arrangement could not be kept, so
+      // Signed out, or the dashboard app unreachable: an arrangement could not be kept, so
       // nothing can be moved and only the page's own links show in the row.
       if (!this.canSave) {
         [this.btnGrid, this.btnOne, this.addWrap, this.btnReset].forEach(function (b) { b.hidden = true; });
@@ -298,7 +299,7 @@
     }
 
     // A card marked data-autohide leaves the grid while everything in it besides its
-    // heading is hidden or empty (a peer's card that has nothing for this person).
+    // heading is hidden or empty (an app's card that has nothing for this person).
     empty(c) {
       if (!c.node.hasAttribute('data-autohide')) return false;
       var parts = Array.prototype.filter.call(c.node.children, function (n) {
@@ -382,8 +383,12 @@
     }
 
     // Where a card was put on a wide screen: what the person saved, else the default.
+    // A card the person has not placed yet goes after everything they arranged.
     intended(id) {
-      return this.saved.items[id] || this.defaultPos[id];
+      if (this.saved.items[id]) return this.saved.items[id];
+      var d = this.defaultPos[id];
+      if (!Object.keys(this.saved.items).length) return d;
+      return { x: d.x, y: 100000 + d.y, w: d.w };
     }
 
     // Positions of what is on the grid now, merged over what was saved, so a card
@@ -409,7 +414,7 @@
       return fetch(this.layoutUrl(), {
         method: 'PUT',
         credentials: 'include',
-        headers: { 'Content-Type': 'application/json', 'X-Baobab': '1' },
+        headers: { 'Content-Type': 'application/json', 'X-Embed': '1' },
         body: JSON.stringify({ layout: layout }),
       })
         .then(function (r) { if (!r.ok) throw new Error(r.status); })
@@ -459,21 +464,19 @@
       var self = this;
       var before = JSON.parse(JSON.stringify(Object.assign({}, this.saved, { items: this.collect() })));
       this.applyLayout({ items: {}, hidden: [], view: 'grid', current: '' });
-      if (this.canSave) {
-        fetch(this.layoutUrl(), {
-          method: 'DELETE', credentials: 'include', headers: { 'X-Baobab': '1' },
-        }).catch(function () {});
-      }
       this.note.textContent = '';
+      var deleted = !this.canSave ? Promise.resolve() : fetch(this.layoutUrl(), {
+        method: 'DELETE', credentials: 'include', headers: { 'X-Embed': '1' },
+      }).then(function (r) { if (!r.ok) throw new Error(r.status); })
+        .catch(function () { self.note.textContent = 'The reset is not saved.'; });
       var undo = el('button', null, 'Undo');
       undo.type = 'button';
       undo.addEventListener('click', function () {
         self.applyLayout(before);
-        self.put(before);
         self.note.textContent = '';
+        deleted.then(function () { self.put(before); });
       });
-      this.note.append('Reset. ', undo);
-      setTimeout(function () { if (undo.isConnected) self.note.textContent = ''; }, 10000);
+      deleted.then(function () { if (!self.note.textContent) self.note.append('Reset. ', undo); });
     }
 
     applyLayout(layout) {
@@ -536,5 +539,5 @@
     }
   }
 
-  customElements.define('baobab-grid', BaobabGrid);
+  customElements.define('dashboard-grid', DashboardGrid);
 })();

@@ -1,5 +1,5 @@
-_commit: 99266df
-_src_path: /opt/shared/repos/baobab
-kind: frame
+_commit: f0ac641
+_src_path: gh:Cooperation-org/baobab
+kind: dashboard
 name: VolKit
 slug: volkit
