@@ -1,13 +1,15 @@
 """Settings for VolKit, a baobab frame. Every value comes from the environment;
 .env.example lists them. Names shared across baobab pieces are in CONTRACT.md section 10."""
 
+import os
 from pathlib import Path
 
 import environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
-environ.Env.read_env(BASE_DIR / ".env")
+if not os.environ.get("BAOBAB_TESTS"):
+    environ.Env.read_env(BASE_DIR / ".env")  # tests never read a developer's .env
 
 SITE_NAME = env("SITE_NAME", default="VolKit")
 SECRET_KEY = env("SECRET_KEY")

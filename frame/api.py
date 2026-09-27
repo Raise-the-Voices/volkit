@@ -91,29 +91,30 @@ class LogoutView(APIView):
 
 
 @require_GET
-def s2s_membership(request):
-    """For roots: is this person (OIDC sub) in this org, and as what?"""
-    if not s2s_authorized(request):
-        return JsonResponse({"detail": "forbidden"}, status=403)
-    ident = Identity.objects.filter(issuer=settings.OIDC_ISSUER, sub=request.GET.get("sub", "")).first()
-    role = None
-    if ident:
-        role = Membership.objects.filter(user=ident.user_id, org__slug=request.GET.get("org", "")) \
-            .values_list("role", flat=True).first()
-    return JsonResponse({"member": role is not None, "role": role})
+def s2s_identity(request, provider, subject):
+    """For roots: who this login is and which orgs they are in.
 
-
-@require_GET
-def s2s_orgs(request):
-    """For roots: the orgs this person (OIDC sub) is in."""
+    Same path and answer as GovKit's (`govkit/apps/accounts/api.py`, s2s_identity), so a
+    root works against either. `provider` is "linkedtrust" for OIDC_ISSUER. A stranger
+    is 404; someone in no org is 200 with no memberships.
+    """
     if not s2s_authorized(request):
-        return JsonResponse({"detail": "forbidden"}, status=403)
-    ident = Identity.objects.filter(issuer=settings.OIDC_ISSUER, sub=request.GET.get("sub", "")).first()
-    orgs = []
-    if ident:
-        orgs = [{"slug": m.org.slug, "name": m.org.name, "role": m.role}
-                for m in Membership.objects.filter(user=ident.user_id).select_related("org").order_by("org__name")]
-    return JsonResponse({"orgs": orgs})
+        return JsonResponse({"error": "unauthorized"}, status=401)
+    ident = None
+    if provider == "linkedtrust":
+        ident = Identity.objects.select_related("user").filter(issuer=settings.OIDC_ISSUER, sub=subject).first()
+    if ident is None or not ident.user.is_active:
+        return JsonResponse({"error": "not found"}, status=404)
+    user = ident.user
+    return JsonResponse({
+        "display_name": user.get_full_name() or user.email,
+        "email": user.email,
+        "pool": False,
+        "memberships": [
+            {"org_slug": m.org.slug, "org_name": m.org.name, "role": m.role}
+            for m in Membership.objects.filter(user=user).select_related("org").order_by("org__slug")
+        ],
+    })
 
 
 async def live_view(request):
@@ -139,7 +140,6 @@ urls = [
     path("me/layouts/<slug:dashboard>/", LayoutView.as_view()),
     path("nav/", NavView.as_view()),
     path("logout/", LogoutView.as_view()),
-    path("s2s/membership/", s2s_membership),
-    path("s2s/orgs/", s2s_orgs),
+    path("v1/accounts/s2s/identity/<slug:provider>/<path:subject>/", s2s_identity),
     path("live/", live_view),
 ]

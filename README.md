@@ -52,7 +52,7 @@ Production: `gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker`,
 | `/api/me/` | The signed-in person and their orgs |
 | `/api/me/layouts/<dashboard>/` | GET, PUT, DELETE their arrangement |
 | `/api/nav/` | The nav places this viewer sees |
-| `/api/s2s/membership/?sub=&org=` | For roots, with `Authorization: Bearer <S2S_TOKEN>` |
+| `/api/v1/accounts/s2s/identity/linkedtrust/<sub>/` | For roots, with `Authorization: Bearer <S2S_TOKEN>`: the person and their orgs. Same path and answer as GovKit |
 | `/api/live/?topics=<org>/<thing>` | Server-sent events |
 
 ## Dashboards
@@ -64,17 +64,37 @@ A dashboard is a file, `dashboards/<name>.json`:
   "title": "Home",
   "roles": [],
   "cards": [
-    {"id": "welcome", "w": 12, "title": "Welcome", "template": "frame/cards/welcome.html"},
-    {"id": "items", "w": 6, "title": "Items", "peer": "planner", "tag": "planner-items"}
+    {"id": "apps", "w": 12, "title": "Apps", "template": "frame/cards/apps.html"},
+    {"id": "items", "w": 6, "title": "Items", "peer": "planner", "tag": "planner-items"},
+    {"id": "mine", "w": 6, "title": "Mine", "tag": "volkit-mine", "script": "embed/volkit.js"},
+    {"id": "cases", "w": 6, "title": "Cases", "template": "frame/cards/cases.html", "requires": "CASES_URL"},
+    {"id": "claims", "w": 6, "title": "Claims", "tag": "lt-claims",
+     "script": "https://demos.linkedtrust.us/baobab/components/lt-claims.js",
+     "attrs": {"data-up": "https://live.linkedtrust.us", "data-query": "our-group"}}
   ]
 }
 ```
 
-`roles` empty: every member of the org. `w` is a width out of 12. A card is a template in
-this frame, or a peer's custom element; the peer (its app, API and cards-file URLs) is a row
-under Peers in the admin, and its cards-file origin is the only outside script the page
-may load. Card order in the file is the default arrangement; each person's changes are
-theirs.
+The default dashboard is one card, Apps: every peer, opening its app. `roles` empty: every
+member of the org. `title` is the page heading.
+
+A card is one of three things:
+
+- `template`: a template in this frame.
+- `tag` + `script`: this frame's own custom element, from its static files (start from
+  `static/embed/kit.js`). It gets `data-up` = this frame and `data-org`.
+- `tag` + `peer`: a peer's custom element, from the peer's cards file.
+- `tag` + `script` as a full URL: a component from a library, e.g.
+  `https://demos.linkedtrust.us/baobab/components/lt-claims.js`. Its origin must be a peer's
+  (add the library under Peers), because a script on the page runs as the viewer.
+
+Any element card may add `"attrs": {"data-...": "..."}` (see the component's attributes in
+COMPONENTS.md). A card that cannot be shown is left out and the reason is logged.
+
+`requires`: the card shows only while that setting is set (unset means off). `w` is a width
+out of 12. A peer (its app, API and cards-file URLs) is a row under Peers in the admin, and
+its cards-file origin is the only outside script the page may load. Card order in the file
+is the default arrangement; each person's changes are theirs.
 
 ## Links
 

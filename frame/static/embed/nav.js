@@ -25,14 +25,15 @@
     s.id = 'baobab-nav-styles';
     s.textContent = [
       'baobab-nav { display: block; min-height: 40px; background: var(--bb-surface, #fffefb); border-bottom: 1px solid var(--bb-border, #e6e1d8); font: 13px/1 var(--bb-font-body, system-ui, sans-serif); }',
-      'baobab-nav .bn-bar { display: flex; align-items: center; gap: 2px; height: 40px; padding: 0 12px; overflow-x: auto; scrollbar-width: none; }',
-      'baobab-nav .bn-bar::-webkit-scrollbar { display: none; }',
+      'baobab-nav .bn-bar { display: flex; align-items: center; gap: 2px; height: 40px; padding: 0 12px; }',
+      'baobab-nav .bn-places { flex: 1; min-width: 0; display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }',
+      'baobab-nav .bn-places::-webkit-scrollbar { display: none; }',
+      'baobab-nav .bn-site, baobab-nav .bn-account { flex: none; }',
+      'baobab-nav .bn-me { max-width: 12em; overflow: hidden; text-overflow: ellipsis; }',
       'baobab-nav a { color: var(--bb-ink-2, #5d574d); text-decoration: none; padding: 6px 10px; border-radius: 6px; white-space: nowrap; }',
       'baobab-nav a:hover { color: var(--bb-ink, #26221c); background: rgba(127,127,127,0.1); }',
       'baobab-nav a[aria-current="page"] { color: var(--bb-ink, #26221c); font-weight: 600; }',
       'baobab-nav .bn-site { font-weight: 650; color: var(--bb-ink, #26221c); padding-left: 0; }',
-      'baobab-nav .bn-spacer { flex: 1; }',
-      'baobab-nav .bn-bar { overflow-y: visible; }',
       'baobab-nav .bn-account { position: relative; }',
       'baobab-nav .bn-me { font: inherit; color: var(--bb-ink-2, #5d574d); background: none; border: 0; padding: 6px 10px; border-radius: 6px; cursor: pointer; white-space: nowrap; }',
       'baobab-nav .bn-me:hover { background: rgba(127,127,127,0.1); }',
@@ -80,14 +81,15 @@
       bar.className = 'bn-bar';
       bar.setAttribute('aria-label', nav.site.name);
       bar.appendChild(link(nav.site.url, nav.site.name, 'bn-site'));
+      // The places scroll sideways on a narrow screen; the site name and the account stay put.
+      var places = document.createElement('span');
+      places.className = 'bn-places';
       (nav.places || []).forEach(function (p) {
         var a = link(p.url, p.label);
         if (isHere(p.url)) a.setAttribute('aria-current', 'page');
-        bar.appendChild(a);
+        places.appendChild(a);
       });
-      var spacer = document.createElement('span');
-      spacer.className = 'bn-spacer';
-      bar.appendChild(spacer);
+      bar.appendChild(places);
       if (nav.me) {
         bar.appendChild(this.account(nav.me.name, nav.site.url));
       } else if (location.href !== nav.site.url) {

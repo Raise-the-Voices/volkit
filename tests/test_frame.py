@@ -29,7 +29,7 @@ def test_layout_is_the_persons_own(client, member, stranger):
     url = "/api/me/layouts/home/"
     client.force_login(member)
     assert client.get(url).json() == {"layout": {}}
-    layout = {"items": {"welcome": {"x": 0, "y": 0, "w": 12}}, "hidden": []}
+    layout = {"items": {"apps": {"x": 0, "y": 0, "w": 12}}, "hidden": []}
     assert client.put(url, {"layout": layout}, content_type="application/json", **EMBED).status_code == 200
     assert client.get(url).json() == {"layout": layout}
     client.force_login(stranger)
@@ -78,15 +78,14 @@ def test_dashboard_loads_scripts_only_from_peers(client, member):
 
 
 @override_settings(S2S_TOKEN="t0k")
-def test_s2s_membership(client, member):
+def test_s2s_identity_answers_like_govkit(client, member):
     Identity.objects.create(user=member, issuer="https://live.linkedtrust.us", sub="42")
-    url = "/api/s2s/membership/?sub=42&org=acme"
-    assert client.get(url).status_code == 403
-    assert client.get(url, HTTP_AUTHORIZATION="Bearer t0k").json() == {"member": True, "role": "member"}
-    assert client.get("/api/s2s/membership/?sub=42&org=other",
-                      HTTP_AUTHORIZATION="Bearer t0k").json() == {"member": False, "role": None}
-    assert client.get("/api/s2s/orgs/?sub=42", HTTP_AUTHORIZATION="Bearer t0k").json() == {
-        "orgs": [{"slug": "acme", "name": "Acme", "role": "member"}]}
+    url = "/api/v1/accounts/s2s/identity/linkedtrust/42/"
+    assert client.get(url).status_code == 401
+    got = client.get(url, HTTP_AUTHORIZATION="Bearer t0k").json()
+    assert got["memberships"] == [{"org_slug": "acme", "org_name": "Acme", "role": "member"}]
+    assert client.get("/api/v1/accounts/s2s/identity/linkedtrust/99/",
+                      HTTP_AUTHORIZATION="Bearer t0k").status_code == 404
 
 
 @override_settings(LIVE=True)
@@ -126,3 +125,46 @@ def test_sign_out_from_the_nav(client, member):
     assert client.get("/api/nav/").json()["me"]
     assert client.post("/api/logout/", **EMBED).status_code == 204
     assert client.get("/api/nav/").json()["me"] is None
+
+
+def test_dashboard_cards_own_script_and_requires(client, member, settings, tmp_path, monkeypatch):
+    import json
+
+    from frame import views
+
+    (tmp_path / "home.json").write_text(json.dumps({"title": "Volunteer Dashboard", "cards": [
+        {"id": "mine", "w": 6, "title": "Mine", "tag": "acme-mine", "script": "embed/acme.js"},
+        {"id": "cases", "w": 6, "title": "Cases", "template": "frame/cards/apps.html", "requires": "CASES_URL"},
+    ]}))
+    monkeypatch.setattr(views, "DASHBOARDS", tmp_path)
+    client.force_login(member)
+    body = client.get("/o/acme/").content.decode()
+    assert "<h1 class=\"dash-title\">Volunteer Dashboard</h1>" in body
+    assert '<acme-mine data-org="acme" data-up="http://testserver"></acme-mine>' in body
+    assert "/static/embed/acme.js" in body
+    assert 'data-card="cases"' not in body
+    settings.CASES_URL = "https://cases.example"
+    assert 'data-card="cases"' in client.get("/o/acme/").content.decode()
+
+
+def test_library_cards_with_attributes_only_from_a_peer_origin(client, member, tmp_path, monkeypatch, caplog):
+    import json
+
+    from frame import views
+
+    lib = "https://demos.linkedtrust.us/baobab/components/"
+    (tmp_path / "home.json").write_text(json.dumps({"title": "Home", "cards": [
+        {"id": "claims", "tag": "lt-claims", "script": lib + "lt-claims.js",
+         "attrs": {"data-up": "https://live.linkedtrust.us", "data-query": "elmwood"}},
+        {"id": "bad", "tag": "evil-card", "script": "https://evil.example/x.js"},
+    ]}))
+    monkeypatch.setattr(views, "DASHBOARDS", tmp_path)
+    client.force_login(member)
+    body = client.get("/o/acme/").content.decode()
+    assert 'data-card="claims"' not in body
+    assert "not a peer's origin" in caplog.text
+    Peer.objects.create(slug="lib", name="Components", app_url=lib, api_url=lib, embed_url=lib + "lt-claims.js")
+    body = client.get("/o/acme/").content.decode()
+    assert '<lt-claims data-org="acme" data-query="elmwood" data-up="https://live.linkedtrust.us"></lt-claims>' in body
+    assert lib + "lt-claims.js" in body
+    assert "evil" not in body

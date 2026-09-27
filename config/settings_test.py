@@ -2,6 +2,8 @@
 
 import os
 
+os.environ["BAOBAB_TESTS"] = "1"
+
 for key, value in {
     "SECRET_KEY": "test",
     "DATABASE_URL": "sqlite://:memory:",
