@@ -1,5 +1,7 @@
-# Deploys VolKit to one app VM. Run from a machine that can SSH to it:
-#   ansible-playbook -i <inventory> deploy/ansible/playbook.yml -e @<secrets.yml>
+# Deploys VolKit. This file is the record of how it is deployed; it is run on
+# the server itself:
+#   sudo ansible-playbook -i deploy/ansible/inventory.ini deploy/ansible/playbook.yml -e @/opt/volkit/vars.yml
+# vars.yml: copy example-vars.yml, fill in, chmod 600, never commit it.
 # Before the first run: the Postgres database exists (cobox setup-new-app-vm.md,
 # create-app-db.sh), the OIDC client is registered at the issuer with redirect
 # https://<volkit_host>/auth/linkedtrust/callback, and the host routes volkit_host here.

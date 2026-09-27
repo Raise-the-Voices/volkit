@@ -1,4 +1,4 @@
-# Copy, fill in, keep out of git (ansible-vault encrypt). Addresses below are
+# Copy to /opt/volkit/vars.yml on the server, fill in, chmod 600. Never commit it. Addresses below are
 # Raise the Voices' as of 2026-09-26.
 volkit_host: ""                 # not decided yet
 volkit_database_url: ""         # postgres://volkit:<pw>@10.0.0.100:5432/volkit
