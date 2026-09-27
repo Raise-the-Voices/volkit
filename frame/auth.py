@@ -52,8 +52,14 @@ def logout_view(request):
 
 @transaction.atomic
 def person_for(userinfo):
-    """The person this sign-in belongs to: by provider id, else by the verified
-    email (then remembered by id), else a new account."""
+    """The person this sign-in belongs to.
+
+    1. Already seen: by the provider's id for them (`sub`).
+    2. Else an existing account, only when the provider says the email is verified,
+       exactly one account has it, and that account has no id from this provider yet.
+       Anything looser lets whoever controls a matching email take over an account.
+    3. Else a new account.
+    """
     User = get_user_model()
     sub = str(userinfo.get("sub") or "")
     email = (userinfo.get("email") or "").strip().lower()
@@ -62,10 +68,14 @@ def person_for(userinfo):
     found = Identity.objects.select_related("user").filter(issuer=settings.OIDC_ISSUER, sub=sub).first()
     if found:
         return found.user
-    user = User.objects.filter(email__iexact=email).first() if email else None
+    user = None
+    if email and userinfo.get("email_verified") is True:
+        matches = list(User.objects.filter(email__iexact=email)[:2])
+        if len(matches) == 1 and not matches[0].identities.filter(issuer=settings.OIDC_ISSUER).exists():
+            user = matches[0]
     if user is None:
         user = User.objects.create_user(
-            username=email or f"{sub}@{urlsplit(settings.OIDC_ISSUER).netloc}",
+            username=free_username(User, email or f"{sub}@{urlsplit(settings.OIDC_ISSUER).netloc}"),
             email=email,
             first_name=(userinfo.get("name") or "")[:150],
         )
@@ -73,6 +83,15 @@ def person_for(userinfo):
         user.save()
     Identity.objects.create(user=user, issuer=settings.OIDC_ISSUER, sub=sub)
     return user
+
+
+def free_username(User, wanted):
+    name, n = wanted[:150], 1
+    while User.objects.filter(username=name).exists():
+        n += 1
+        suffix = f"-{n}"
+        name = wanted[:150 - len(suffix)] + suffix
+    return name
 
 
 class Callback(lt.CallbackView):

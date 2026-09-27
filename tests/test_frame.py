@@ -95,11 +95,22 @@ def test_live_refuses_topics_outside_your_orgs(client, member):
     assert client.get("/api/live/?topics=other/items").status_code == 403
 
 
-def test_sign_in_links_by_email_then_by_id(member):
-    assert person_for({"sub": "7", "email": "A@example.com"}) == member
+def test_sign_in_links_by_verified_email_then_by_id(member):
+    assert person_for({"sub": "7", "email": "A@example.com", "email_verified": True}) == member
     assert person_for({"sub": "7", "email": "changed@example.com"}) == member
     new = person_for({"sub": "8", "email": "b@example.com"})
     assert new != member and not new.has_usable_password()
+
+
+def test_an_unverified_email_never_takes_over_an_account(member):
+    other = person_for({"sub": "9", "email": "a@example.com"})
+    assert other != member
+
+
+def test_an_account_already_linked_is_not_linked_again(member):
+    person_for({"sub": "7", "email": "a@example.com", "email_verified": True})
+    second = person_for({"sub": "10", "email": "a@example.com", "email_verified": True})
+    assert second != member and second.username != member.username
 
 
 @override_settings(EMBED_ORIGINS=["https://planner.example"])
