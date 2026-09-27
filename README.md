@@ -39,6 +39,21 @@ cp .env.example .env          # then fill in DATABASE_URL and the OIDC client
 Production: `gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker`, after
 `manage.py collectstatic`. Live updates (`/api/live/`) need Postgres and an ASGI server.
 
+To see a dashboard locally without an OIDC client: sign in at `/admin/` as the superuser,
+add yourself as a member on an org's admin page, then open `/o/<org>/`.
+
+Behind nginx, `/api/live/` needs its own block, or the events stall with no error:
+
+```
+location /api/live/ {
+    proxy_pass http://127.0.0.1:8000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto https;
+    proxy_buffering off;
+    proxy_read_timeout 1h;
+}
+```
+
 ## What it serves
 
 | Path | What |
