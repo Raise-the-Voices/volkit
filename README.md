@@ -8,8 +8,8 @@ The Raise the Voices volunteer dashboard: one page, what is next for me.
 | My articles | the person's own posts incl. drafts, Ghost Admin API, matched by email; only when the sign-in said the email is verified | `VOLKIT_GHOST_ADMIN_KEY` unset |
 | My cases | link to the cases app (its own sign-in for now) | `VOLKIT_CASES_URL` unset |
 
-Not built yet: To do next (Taiga), Upcoming events, Learning, My impact (no source of
-record chosen).
+Not built yet: To do next (Taiga), Upcoming events (Mobilize and Google Calendar, push and
+pull), Learning, My impact (no source of record chosen).
 
 Deploy: `deploy/ansible/` (see the playbook header and `example-vars.yml`).
 
